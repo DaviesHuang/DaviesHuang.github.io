@@ -100,11 +100,12 @@ var Main = function (_React$Component) {
         ),
         React.createElement(
           'div',
-          { className: 'row', style: { paddingLeft: 15, paddingRight: 15, paddingBottom: 15 } },
+          { className: 'row', style: { paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600 } },
           this.state.spaces.map(function (space) {
             return _this3.renderSpaceCard(space);
           })
         ),
+        this.renderFooter(),
         this.renderToast()
       );
     }
@@ -115,7 +116,7 @@ var Main = function (_React$Component) {
 
       return React.createElement(
         'div',
-        { key: space.id, className: 'card text-start', style: { width: 568, backgroundColor: '#1D9BF0', borderRadius: 12, padding: 11, marginBottom: 5 } },
+        { key: space.id, className: 'card text-start', style: { width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5 } },
         React.createElement(
           'div',
           { className: 'row', style: { paddingLeft: 11, paddingRight: 11 } },
@@ -190,6 +191,33 @@ var Main = function (_React$Component) {
               'Go to Space'
             )
           )
+        )
+      );
+    }
+  }, {
+    key: 'renderFooter',
+    value: function renderFooter() {
+      return React.createElement(
+        'div',
+        { className: 'row row-cols-auto', style: { color: 'white', paddingLeft: 15, paddingRight: 15, marginBottom: 15 } },
+        React.createElement(
+          'div',
+          { className: 'col', onClick: function onClick() {
+              return window.open('https://www.privacypolicygenerator.info/live.php?token=4fclxBeWggIPSSnIp0flCgPXY0nQGdcu', '_blank');
+            } },
+          'Privacy Policy'
+        ),
+        React.createElement(
+          'div',
+          { className: 'col', onClick: function onClick() {
+              return window.open('https://www.termsandconditionsgenerator.com/live.php?token=kWY9pYLJmCUPGMXxH5S2elpC35R4c1bU', '_blank');
+            } },
+          'Terms and Conditions'
+        ),
+        React.createElement(
+          'div',
+          { className: 'col' },
+          '@ 2022 twitterspace.co; All rights reserved'
         )
       );
     }
