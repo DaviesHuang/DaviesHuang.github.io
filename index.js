@@ -17,7 +17,9 @@ var Main = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this, props));
 
     _this.state = {
-      spaces: []
+      spaces: [],
+      pastSpaces: [],
+      tab: 'live'
     };
     return _this;
   }
@@ -36,15 +38,21 @@ var Main = function (_React$Component) {
         _this2.setState({ spaces: data });
         console.log(data);
       });
+      fetch('https://web3twitterspace-default-rtdb.firebaseio.com/past.json').then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        data = Object.values(data);
+        data = data.sort(function (a, b) {
+          return b.participant_count - a.participant_count;
+        });
+        _this2.setState({ pastSpaces: data });
+        console.log(data);
+      });
     }
   }, {
     key: 'render',
     value: function render() {
       var _this3 = this;
-
-      if (this.state.liked) {
-        return 'You liked this.';
-      }
 
       return React.createElement(
         'div',
@@ -63,56 +71,77 @@ var Main = function (_React$Component) {
             )
           )
         ),
+        this.renderTabs(),
         React.createElement(
           'div',
-          { className: 'row' },
+          { className: 'row tab-content', id: 'nav-tabContent', style: { paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600 } },
           React.createElement(
             'div',
-            { className: 'col', style: { cursor: 'pointer' }, onClick: function onClick() {
-                return _this3.showToast();
-              } },
+            { 'class': 'tab-pane fade', id: 'nav-past', role: 'tabpanel', 'aria-labelledby': 'nav-past-tab', tabindex: '0' },
             React.createElement(
-              'h4',
-              null,
-              'Past'
+              'div',
+              { className: 'row' },
+              this.state.pastSpaces.map(function (space) {
+                return _this3.renderSpaceCard(space, false);
+              })
             )
           ),
           React.createElement(
             'div',
-            { className: 'col' },
+            { 'class': 'tab-pane fade show active', id: 'nav-live', role: 'tabpanel', 'aria-labelledby': 'nav-live-tab', tabindex: '0' },
             React.createElement(
-              'h4',
-              { style: { textDecoration: 'underline' } },
-              'Live'
+              'div',
+              { className: 'row' },
+              this.state.spaces.map(function (space) {
+                return _this3.renderSpaceCard(space, true);
+              })
             )
           ),
           React.createElement(
             'div',
-            { className: 'col', style: { cursor: 'pointer' }, onClick: function onClick() {
-                return _this3.showToast();
-              } },
-            React.createElement(
-              'h4',
-              null,
-              'Upcoming'
-            )
+            { 'class': 'tab-pane fade', id: 'nav-upcoming', role: 'tabpanel', 'aria-labelledby': 'nav-upcoming-tab', tabindex: '0' },
+            '...'
           )
-        ),
-        React.createElement(
-          'div',
-          { className: 'row', style: { paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600 } },
-          this.state.spaces.map(function (space) {
-            return _this3.renderSpaceCard(space);
-          })
         ),
         this.renderFooter(),
         this.renderToast()
       );
     }
   }, {
-    key: 'renderSpaceCard',
-    value: function renderSpaceCard(space) {
+    key: 'renderTabs',
+    value: function renderTabs() {
       var _this4 = this;
+
+      return React.createElement(
+        'nav',
+        null,
+        React.createElement(
+          'div',
+          { 'class': 'nav nav-tabs nav-justified', id: 'nav-tab', role: 'tablist' },
+          React.createElement(
+            'button',
+            { 'class': 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2' } },
+            'Past'
+          ),
+          React.createElement(
+            'button',
+            { 'class': 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2' } },
+            'Live'
+          ),
+          React.createElement(
+            'button',
+            { 'class': 'nav-link', id: 'nav-upcoming-tab', style: { color: '#1DA1F2' }, onClick: function onClick() {
+                return _this4.showToast();
+              } },
+            'Upcoming'
+          )
+        )
+      );
+    }
+  }, {
+    key: 'renderSpaceCard',
+    value: function renderSpaceCard(space, isLive) {
+      var _this5 = this;
 
       return React.createElement(
         'div',
@@ -183,12 +212,12 @@ var Main = function (_React$Component) {
             {
               style: { height: 32, marginTop: 15, backgroundColor: 'rgb(239, 243, 244)', minWidth: 34, borderRadius: '9999px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' },
               onClick: function onClick() {
-                return _this4.goToSpace(space.id);
+                return _this5.goToSpace(space.id);
               } },
             React.createElement(
               'span',
               { style: { fontSize: 14, fontWeight: 700 } },
-              'Go to Space'
+              isLive ? 'Listen live' : 'Go to Space'
             )
           )
         )
