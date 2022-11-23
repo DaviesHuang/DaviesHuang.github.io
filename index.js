@@ -19,7 +19,8 @@ var Main = function (_React$Component) {
     _this.state = {
       spaces: [],
       pastSpaces: [],
-      tab: 'live'
+      tab: 'live',
+      pageSize: 50
     };
     return _this;
   }
@@ -28,6 +29,10 @@ var Main = function (_React$Component) {
     key: 'componentDidMount',
     value: function componentDidMount() {
       var _this2 = this;
+
+      window.addEventListener("scroll", function () {
+        return _this2.handleScroll();
+      });
 
       fetch('https://web3twitterspace-default-rtdb.firebaseio.com/live.json').then(function (response) {
         return response.json();
@@ -42,7 +47,9 @@ var Main = function (_React$Component) {
         return response.json();
       }).then(function (data) {
         data = Object.values(data);
-        data = data.sort(function (a, b) {
+        data = data.filter(function (a) {
+          return a.participant_count >= 10;
+        }).sort(function (a, b) {
           return b.participant_count - a.participant_count;
         });
         _this2.setState({ pastSpaces: data });
@@ -81,7 +88,7 @@ var Main = function (_React$Component) {
             React.createElement(
               'div',
               { className: 'row' },
-              this.state.pastSpaces.map(function (space) {
+              this.state.pastSpaces.slice(0, this.state.pageSize).map(function (space) {
                 return _this3.renderSpaceCard(space, false);
               })
             )
@@ -121,12 +128,12 @@ var Main = function (_React$Component) {
           React.createElement(
             'button',
             { 'class': 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2' } },
-            'Past'
+            'Past (' + this.state.pastSpaces.length + ')'
           ),
           React.createElement(
             'button',
             { 'class': 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2' } },
-            'Live'
+            'Live (' + this.state.spaces.length + ')'
           ),
           React.createElement(
             'button',
@@ -283,6 +290,18 @@ var Main = function (_React$Component) {
       var toastLiveExample = document.getElementById('liveToast');
       var toast = new bootstrap.Toast(toastLiveExample);
       toast.show();
+    }
+  }, {
+    key: 'handleScroll',
+    value: function handleScroll() {
+      var userScrollHeight = window.innerHeight + window.scrollY;
+      var windowBottomHeight = document.documentElement.offsetHeight;
+
+      if (userScrollHeight >= windowBottomHeight) {
+        this.setState(function (prevState, props) {
+          return { pageSize: prevState.pageSize + 50 };
+        });
+      }
     }
   }]);
 

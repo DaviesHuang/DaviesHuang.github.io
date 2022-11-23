@@ -6,11 +6,14 @@ class Main extends React.Component {
     this.state = { 
       spaces: [],
       pastSpaces:[],
-      tab: 'live'
+      tab: 'live',
+      pageSize: 50,
     };
   }
 
   componentDidMount() {
+    window.addEventListener("scroll", () => this.handleScroll());
+
     fetch('https://web3twitterspace-default-rtdb.firebaseio.com/live.json')
       .then(response => response.json())
       .then(data => {
@@ -22,7 +25,9 @@ class Main extends React.Component {
       .then(response => response.json())
       .then(data => {
         data = Object.values(data);
-        data = data.sort((a, b) => b.participant_count - a.participant_count);
+        data = data
+          .filter((a) => a.participant_count >= 10)
+          .sort((a, b) => b.participant_count - a.participant_count);
         this.setState({pastSpaces: data});
         console.log(data);
       });
@@ -40,7 +45,7 @@ class Main extends React.Component {
         {this.renderTabs()}
         <div className="row tab-content" id="nav-tabContent" style={{paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600}}>
           <div class="tab-pane fade" id="nav-past" role="tabpanel" aria-labelledby="nav-past-tab" tabindex="0">
-            <div className="row">{this.state.pastSpaces.map((space) => this.renderSpaceCard(space, false))}</div>
+            <div className="row">{this.state.pastSpaces.slice(0, this.state.pageSize).map((space) => this.renderSpaceCard(space, false))}</div>
           </div>
           <div class="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab" tabindex="0">
             <div className="row">{this.state.spaces.map((space) => this.renderSpaceCard(space, true))}</div>
@@ -57,10 +62,15 @@ class Main extends React.Component {
     return (
       <nav>
         <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2'}}>Past</button>
-          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2'}}>Live</button>
-          {/* <button class="nav-link" id="nav-upcoming-tab" data-bs-toggle="tab" data-bs-target="#nav-upcoming" type="button" role="tab" aria-controls="nav-upcoming" aria-selected="false">Upcoming</button> */}
-          <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2'}} onClick={() => this.showToast()}>Upcoming</button>
+          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2'}}>
+            {'Past (' + this.state.pastSpaces.length + ')'} 
+          </button>
+          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2'}}>
+            {'Live (' + this.state.spaces.length + ')'}
+          </button>
+          <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2'}} onClick={() => this.showToast()}>
+            Upcoming
+          </button>
         </div>
       </nav>
     )
@@ -136,6 +146,15 @@ class Main extends React.Component {
     const toastLiveExample = document.getElementById('liveToast');
     const toast = new bootstrap.Toast(toastLiveExample);
     toast.show();
+  }
+
+  handleScroll() {
+    let userScrollHeight = window.innerHeight + window.scrollY;
+    let windowBottomHeight = document.documentElement.offsetHeight;
+
+    if (userScrollHeight >= windowBottomHeight) {
+      this.setState((prevState, props) => ({pageSize: prevState.pageSize + 50}));
+    }
   }
 }
 
