@@ -62,13 +62,13 @@ class Main extends React.Component {
     return (
       <nav>
         <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2'}}>
+          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}>
             {'Past (' + this.state.pastSpaces.length + ')'} 
           </button>
-          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2'}}>
+          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}>
             {'Live (' + this.state.spaces.length + ')'}
           </button>
-          <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2'}} onClick={() => this.showToast()}>
+          <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}} onClick={() => this.showToast()}>
             Upcoming
           </button>
         </div>
