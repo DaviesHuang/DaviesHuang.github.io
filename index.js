@@ -84,7 +84,7 @@ var Main = function (_React$Component) {
           { className: 'row tab-content', id: 'nav-tabContent', style: { paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600 } },
           React.createElement(
             'div',
-            { 'class': 'tab-pane fade', id: 'nav-past', role: 'tabpanel', 'aria-labelledby': 'nav-past-tab', tabindex: '0' },
+            { className: 'tab-pane fade', id: 'nav-past', role: 'tabpanel', 'aria-labelledby': 'nav-past-tab', tabIndex: '0' },
             React.createElement(
               'div',
               { className: 'row' },
@@ -95,7 +95,7 @@ var Main = function (_React$Component) {
           ),
           React.createElement(
             'div',
-            { 'class': 'tab-pane fade show active', id: 'nav-live', role: 'tabpanel', 'aria-labelledby': 'nav-live-tab', tabindex: '0' },
+            { className: 'tab-pane fade show active', id: 'nav-live', role: 'tabpanel', 'aria-labelledby': 'nav-live-tab', tabIndex: '0' },
             React.createElement(
               'div',
               { className: 'row' },
@@ -106,7 +106,7 @@ var Main = function (_React$Component) {
           ),
           React.createElement(
             'div',
-            { 'class': 'tab-pane fade', id: 'nav-upcoming', role: 'tabpanel', 'aria-labelledby': 'nav-upcoming-tab', tabindex: '0' },
+            { className: 'tab-pane fade', id: 'nav-upcoming', role: 'tabpanel', 'aria-labelledby': 'nav-upcoming-tab', tabIndex: '0' },
             '...'
           )
         ),
@@ -124,10 +124,10 @@ var Main = function (_React$Component) {
         null,
         React.createElement(
           'div',
-          { 'class': 'nav nav-tabs nav-justified', id: 'nav-tab', role: 'tablist' },
+          { className: 'nav nav-tabs nav-justified', id: 'nav-tab', role: 'tablist' },
           React.createElement(
             'button',
-            { 'class': 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
+            { className: 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
               onClick: function onClick() {
                 return mixpanel.track("Click past tab");
               } },
@@ -135,7 +135,7 @@ var Main = function (_React$Component) {
           ),
           React.createElement(
             'button',
-            { 'class': 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
+            { className: 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
               onClick: function onClick() {
                 return mixpanel.track("Click live tab");
               } },
@@ -143,7 +143,7 @@ var Main = function (_React$Component) {
           ),
           React.createElement(
             'button',
-            { 'class': 'nav-link', id: 'nav-upcoming-tab', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' }, onClick: function onClick() {
+            { className: 'nav-link', id: 'nav-upcoming-tab', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' }, onClick: function onClick() {
                 return _this4.showToast();
               } },
             'Upcoming'
@@ -179,7 +179,7 @@ var Main = function (_React$Component) {
               { style: { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } },
               React.createElement(
                 'span',
-                { className: 'card-text align-middle' },
+                { className: 'card-text align-middle', style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
                 space.creator_name
               )
             )

@@ -44,13 +44,13 @@ class Main extends React.Component {
         </div>
         {this.renderTabs()}
         <div className="row tab-content" id="nav-tabContent" style={{paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600}}>
-          <div class="tab-pane fade" id="nav-past" role="tabpanel" aria-labelledby="nav-past-tab" tabindex="0">
+          <div className="tab-pane fade" id="nav-past" role="tabpanel" aria-labelledby="nav-past-tab" tabIndex="0">
             <div className="row">{this.state.pastSpaces.slice(0, this.state.pageSize).map((space) => this.renderSpaceCard(space, false))}</div>
           </div>
-          <div class="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab" tabindex="0">
+          <div className="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab" tabIndex="0">
             <div className="row">{this.state.spaces.map((space) => this.renderSpaceCard(space, true))}</div>
           </div>
-          <div class="tab-pane fade" id="nav-upcoming" role="tabpanel" aria-labelledby="nav-upcoming-tab" tabindex="0">...</div>
+          <div className="tab-pane fade" id="nav-upcoming" role="tabpanel" aria-labelledby="nav-upcoming-tab" tabIndex="0">...</div>
         </div>
         {this.renderFooter()}
         {this.renderToast()}
@@ -61,16 +61,16 @@ class Main extends React.Component {
   renderTabs() {
     return (
       <nav>
-        <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
+        <div className="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+          <button className="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
            onClick={() => mixpanel.track("Click past tab")}>
             {'Past (' + this.state.pastSpaces.length + ')'} 
           </button>
-          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
+          <button className="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
            onClick={() => mixpanel.track("Click live tab")}>
             {'Live (' + this.state.spaces.length + ')'}
           </button>
-          <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}} onClick={() => this.showToast()}>
+          <button className="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}} onClick={() => this.showToast()}>
             Upcoming
           </button>
         </div>
@@ -87,9 +87,9 @@ class Main extends React.Component {
               <img style={{height: 19, width: 19, borderRadius: '50%', border: '1px solid white', objectFit: 'contain'}} src={space.creator_profile_image_url}  alt="..."/>
             </div>
           </div>
-          <div className="col col-auto" style={{padding: 0, color: 'white', fontSize: 13, }}>
+          <div className="col col-auto" style={{padding: 0, color: 'white', fontSize: 13}}>
             <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
-              <span className="card-text align-middle">{space.creator_name}</span>
+              <span className="card-text align-middle" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{space.creator_name}</span>
             </div>
           </div>
           <div className="col col-auto" style={{color: 'white', marginLeft: 8, padding: 0}}>
