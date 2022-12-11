@@ -62,10 +62,12 @@ class Main extends React.Component {
     return (
       <nav>
         <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}>
+          <button class="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
+           onClick={() => mixpanel.track("Click past tab")}>
             {'Past (' + this.state.pastSpaces.length + ')'} 
           </button>
-          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}>
+          <button class="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
+           onClick={() => mixpanel.track("Click live tab")}>
             {'Live (' + this.state.spaces.length + ')'}
           </button>
           <button class="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}} onClick={() => this.showToast()}>
@@ -139,10 +141,14 @@ class Main extends React.Component {
   }
 
   goToSpace(spaceId) {
+    mixpanel.track("Click space", {
+      'spaceId': spaceId
+    });
     window.open('https://twitter.com/i/spaces/'+spaceId, '_blank');
   }
 
   showToast() {
+    mixpanel.track("Click upcoming tab");
     const toastLiveExample = document.getElementById('liveToast');
     const toast = new bootstrap.Toast(toastLiveExample);
     toast.show();

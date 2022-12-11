@@ -127,12 +127,18 @@ var Main = function (_React$Component) {
           { 'class': 'nav nav-tabs nav-justified', id: 'nav-tab', role: 'tablist' },
           React.createElement(
             'button',
-            { 'class': 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' } },
+            { 'class': 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
+              onClick: function onClick() {
+                return mixpanel.track("Click past tab");
+              } },
             'Past (' + this.state.pastSpaces.length + ')'
           ),
           React.createElement(
             'button',
-            { 'class': 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' } },
+            { 'class': 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
+              onClick: function onClick() {
+                return mixpanel.track("Click live tab");
+              } },
             'Live (' + this.state.spaces.length + ')'
           ),
           React.createElement(
@@ -282,11 +288,15 @@ var Main = function (_React$Component) {
   }, {
     key: 'goToSpace',
     value: function goToSpace(spaceId) {
+      mixpanel.track("Click space", {
+        'spaceId': spaceId
+      });
       window.open('https://twitter.com/i/spaces/' + spaceId, '_blank');
     }
   }, {
     key: 'showToast',
     value: function showToast() {
+      mixpanel.track("Click upcoming tab");
       var toastLiveExample = document.getElementById('liveToast');
       var toast = new bootstrap.Toast(toastLiveExample);
       toast.show();
