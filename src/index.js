@@ -87,7 +87,7 @@ class Main extends React.Component {
               <img style={{height: 19, width: 19, borderRadius: '50%', border: '1px solid white', objectFit: 'contain'}} src={space.creator_profile_image_url}  alt="..."/>
             </div>
           </div>
-          <div className="col col-auto" style={{padding: 0, color: 'white', fontSize: 13}}>
+          <div className="col col-auto" style={{padding: 0, color: 'white', fontSize: 13, maxWidth: '70%'}}>
             <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
               <span className="card-text align-middle" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{space.creator_name}</span>
             </div>

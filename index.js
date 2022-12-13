@@ -173,7 +173,7 @@ var Main = function (_React$Component) {
           ),
           React.createElement(
             'div',
-            { className: 'col col-auto', style: { padding: 0, color: 'white', fontSize: 13 } },
+            { className: 'col col-auto', style: { padding: 0, color: 'white', fontSize: 13, maxWidth: '70%' } },
             React.createElement(
               'div',
               { style: { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } },
