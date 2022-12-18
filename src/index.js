@@ -8,6 +8,7 @@ class Main extends React.Component {
       pastSpaces:[],
       tab: 'live',
       pageSize: 50,
+      searchKeyword: "",
     };
   }
 
@@ -29,7 +30,6 @@ class Main extends React.Component {
           .filter((a) => a.participant_count >= 10)
           .sort((a, b) => b.participant_count - a.participant_count);
         this.setState({pastSpaces: data});
-        console.log(data);
       });
   }
 
@@ -45,10 +45,10 @@ class Main extends React.Component {
         {this.renderTabs()}
         <div className="row tab-content" id="nav-tabContent" style={{paddingLeft: 15, paddingRight: 15, paddingBottom: 15, minHeight: 600}}>
           <div className="tab-pane fade" id="nav-past" role="tabpanel" aria-labelledby="nav-past-tab" tabIndex="0">
-            <div className="row">{this.state.pastSpaces.slice(0, this.state.pageSize).map((space) => this.renderSpaceCard(space, false))}</div>
+            {this.renderSpaceList()}
           </div>
           <div className="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab" tabIndex="0">
-            <div className="row">{this.state.spaces.map((space) => this.renderSpaceCard(space, true))}</div>
+            {this.renderSpaceList()}
           </div>
           <div className="tab-pane fade" id="nav-upcoming" role="tabpanel" aria-labelledby="nav-upcoming-tab" tabIndex="0">...</div>
         </div>
@@ -61,20 +61,83 @@ class Main extends React.Component {
   renderTabs() {
     return (
       <nav>
-        <div className="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
-          <button className="nav-link" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
-           onClick={() => mixpanel.track("Click past tab")}>
-            {'Past (' + this.state.pastSpaces.length + ')'} 
-          </button>
-          <button className="nav-link active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}}
-           onClick={() => mixpanel.track("Click live tab")}>
-            {'Live (' + this.state.spaces.length + ')'}
-          </button>
-          <button className="nav-link" id="nav-upcoming-tab" style={{color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)'}} onClick={() => this.showToast()}>
-            Upcoming
-          </button>
+        <div className="row" id="nav-tab" role="tablist" style={{paddingLeft: 15, paddingRight: 15}}>
+          <div>
+            <div className="row justify-content-start">
+              <div className="col-12" style={{paddingLeft: 0, paddingRight: 0}}>
+                <input className="form-control me-2" type="search" placeholder="Search spaces" aria-label="Search" 
+                  onFocus={() => mixpanel.track("Click search bar")}
+                  onChange={(e) => this.searchSpace(e)}/>
+              </div>
+              {/* {this.renderLanguageSelector()} */}
+              <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
+                <button className="btn" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" 
+                    style={this.state.tab === 'past' ? Style.tabButtonSelected : Style.tabButton}
+                    onClick={() => this.clickTab("past")}>
+                    {'Past (' + this.state.pastSpaces.length + ')'} 
+                </button>
+              </div>
+              <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
+                <button className="btn col-4 active" id="nav-live-tab" data-bs-toggle="tab" data-bs-target="#nav-live" type="button" role="tab" aria-controls="nav-live" aria-selected="true" 
+                    style={this.state.tab === 'live' ? Style.tabButtonSelected : Style.tabButton}                    
+                    onClick={() => this.clickTab("live")}>
+                    {'Live (' + this.state.spaces.length + ')'}
+                </button>
+              </div>
+              <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
+                <button className="btn col-4" id="nav-upcoming-tab" 
+                  style={this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton}  
+                  onClick={() => this.showToast()}>
+                  Upcoming
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
+    )
+  }
+
+  // TODO: Implement language filter
+  renderLanguageSelector() {
+    return (
+      <div className="col-4" style={{paddingLeft: 5, paddingRight: 0}}>
+        <div className="dropdown">
+          <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+            style={{color: 'grey', backgroundColor: 'white', borderColor: '#ced4da', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden'}}>
+            Language
+          </button>
+          <ul className="dropdown-menu">
+            <li><a className="dropdown-item" href="#">Action</a></li>
+            <li><a className="dropdown-item" href="#">Another action</a></li>
+            <li><a className="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  renderSpaceList() {
+    var spaceList = [];
+    var isLive = false;
+    if (this.state.tab === 'past') {
+      spaceList = this.state.pastSpaces;
+      isLive = false;
+    } else {
+      spaceList = this.state.spaces;
+      isLive = true;
+    }
+    spaceList = spaceList.filter((space) => {
+      return (
+        (space.title && space.title.toLowerCase().includes(this.state.searchKeyword)) ||
+        (space.creator_description && space.creator_description.toLowerCase().includes(this.state.searchKeyword)) ||
+        (space.creator_name && space.creator_name.toLowerCase().includes(this.state.searchKeyword)) ||
+        (space.creator_username && space.creator_username.toLowerCase().includes(this.state.searchKeyword))
+      )
+    });
+    spaceList = spaceList.slice(0, this.state.pageSize);
+    return (
+      <div className="row">{spaceList.map((space) => this.renderSpaceCard(space, isLive))}</div>
     )
   }
 
@@ -140,6 +203,19 @@ class Main extends React.Component {
     )
   }
 
+  searchSpace(event) {
+    const searchKeyword = event.target.value;
+    mixpanel.track("Search space", {
+      keyword: searchKeyword
+    })
+    this.setState({searchKeyword: searchKeyword.toLowerCase()});
+  }
+
+  clickTab(tab) {
+    mixpanel.track("Click " + tab + " tab");
+    this.setState({tab: tab});
+  }
+
   goToSpace(spaceId) {
     mixpanel.track("Click space", {
       'spaceId': spaceId
@@ -161,6 +237,15 @@ class Main extends React.Component {
     if (userScrollHeight >= windowBottomHeight) {
       this.setState((prevState, props) => ({pageSize: prevState.pageSize + 50}));
     }
+  }
+}
+
+const Style = {
+  tabButtonSelected: {
+    color: 'white', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #1D9BF0', backgroundColor: '#1D9BF0'
+  },
+  tabButton: {
+    color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #ced4da', backgroundColor: 'white'
   }
 }
 

@@ -20,7 +20,8 @@ var Main = function (_React$Component) {
       spaces: [],
       pastSpaces: [],
       tab: 'live',
-      pageSize: 50
+      pageSize: 50,
+      searchKeyword: ""
     };
     return _this;
   }
@@ -53,14 +54,11 @@ var Main = function (_React$Component) {
           return b.participant_count - a.participant_count;
         });
         _this2.setState({ pastSpaces: data });
-        console.log(data);
       });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this3 = this;
-
       return React.createElement(
         'div',
         { className: 'container text-center', style: { maxWidth: 598 } },
@@ -85,24 +83,12 @@ var Main = function (_React$Component) {
           React.createElement(
             'div',
             { className: 'tab-pane fade', id: 'nav-past', role: 'tabpanel', 'aria-labelledby': 'nav-past-tab', tabIndex: '0' },
-            React.createElement(
-              'div',
-              { className: 'row' },
-              this.state.pastSpaces.slice(0, this.state.pageSize).map(function (space) {
-                return _this3.renderSpaceCard(space, false);
-              })
-            )
+            this.renderSpaceList()
           ),
           React.createElement(
             'div',
             { className: 'tab-pane fade show active', id: 'nav-live', role: 'tabpanel', 'aria-labelledby': 'nav-live-tab', tabIndex: '0' },
-            React.createElement(
-              'div',
-              { className: 'row' },
-              this.state.spaces.map(function (space) {
-                return _this3.renderSpaceCard(space, true);
-              })
-            )
+            this.renderSpaceList()
           ),
           React.createElement(
             'div',
@@ -117,38 +103,151 @@ var Main = function (_React$Component) {
   }, {
     key: 'renderTabs',
     value: function renderTabs() {
-      var _this4 = this;
+      var _this3 = this;
 
       return React.createElement(
         'nav',
         null,
         React.createElement(
           'div',
-          { className: 'nav nav-tabs nav-justified', id: 'nav-tab', role: 'tablist' },
+          { className: 'row', id: 'nav-tab', role: 'tablist', style: { paddingLeft: 15, paddingRight: 15 } },
           React.createElement(
-            'button',
-            { className: 'nav-link', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
-              onClick: function onClick() {
-                return mixpanel.track("Click past tab");
-              } },
-            'Past (' + this.state.pastSpaces.length + ')'
-          ),
-          React.createElement(
-            'button',
-            { className: 'nav-link active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' },
-              onClick: function onClick() {
-                return mixpanel.track("Click live tab");
-              } },
-            'Live (' + this.state.spaces.length + ')'
-          ),
-          React.createElement(
-            'button',
-            { className: 'nav-link', id: 'nav-upcoming-tab', style: { color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)' }, onClick: function onClick() {
-                return _this4.showToast();
-              } },
-            'Upcoming'
+            'div',
+            null,
+            React.createElement(
+              'div',
+              { className: 'row justify-content-start' },
+              React.createElement(
+                'div',
+                { className: 'col-12', style: { paddingLeft: 0, paddingRight: 0 } },
+                React.createElement('input', { className: 'form-control me-2', type: 'search', placeholder: 'Search spaces', 'aria-label': 'Search',
+                  onFocus: function onFocus() {
+                    return mixpanel.track("Click search bar");
+                  },
+                  onChange: function onChange(e) {
+                    return _this3.searchSpace(e);
+                  } })
+              ),
+              React.createElement(
+                'div',
+                { className: 'col-auto', style: { padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5 } },
+                React.createElement(
+                  'button',
+                  { className: 'btn', id: 'nav-past-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-past', type: 'button', role: 'tab', 'aria-controls': 'nav-past', 'aria-selected': 'false',
+                    style: this.state.tab === 'past' ? Style.tabButtonSelected : Style.tabButton,
+                    onClick: function onClick() {
+                      return _this3.clickTab("past");
+                    } },
+                  'Past (' + this.state.pastSpaces.length + ')'
+                )
+              ),
+              React.createElement(
+                'div',
+                { className: 'col-auto', style: { padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5 } },
+                React.createElement(
+                  'button',
+                  { className: 'btn col-4 active', id: 'nav-live-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-live', type: 'button', role: 'tab', 'aria-controls': 'nav-live', 'aria-selected': 'true',
+                    style: this.state.tab === 'live' ? Style.tabButtonSelected : Style.tabButton,
+                    onClick: function onClick() {
+                      return _this3.clickTab("live");
+                    } },
+                  'Live (' + this.state.spaces.length + ')'
+                )
+              ),
+              React.createElement(
+                'div',
+                { className: 'col-auto', style: { padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5 } },
+                React.createElement(
+                  'button',
+                  { className: 'btn col-4', id: 'nav-upcoming-tab',
+                    style: this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton,
+                    onClick: function onClick() {
+                      return _this3.showToast();
+                    } },
+                  'Upcoming'
+                )
+              )
+            )
           )
         )
+      );
+    }
+
+    // TODO: Implement language filter
+
+  }, {
+    key: 'renderLanguageSelector',
+    value: function renderLanguageSelector() {
+      return React.createElement(
+        'div',
+        { className: 'col-4', style: { paddingLeft: 5, paddingRight: 0 } },
+        React.createElement(
+          'div',
+          { className: 'dropdown' },
+          React.createElement(
+            'button',
+            { className: 'btn btn-secondary dropdown-toggle', type: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false',
+              style: { color: 'grey', backgroundColor: 'white', borderColor: '#ced4da', width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' } },
+            'Language'
+          ),
+          React.createElement(
+            'ul',
+            { className: 'dropdown-menu' },
+            React.createElement(
+              'li',
+              null,
+              React.createElement(
+                'a',
+                { className: 'dropdown-item', href: '#' },
+                'Action'
+              )
+            ),
+            React.createElement(
+              'li',
+              null,
+              React.createElement(
+                'a',
+                { className: 'dropdown-item', href: '#' },
+                'Another action'
+              )
+            ),
+            React.createElement(
+              'li',
+              null,
+              React.createElement(
+                'a',
+                { className: 'dropdown-item', href: '#' },
+                'Something else here'
+              )
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: 'renderSpaceList',
+    value: function renderSpaceList() {
+      var _this4 = this;
+
+      var spaceList = [];
+      var isLive = false;
+      if (this.state.tab === 'past') {
+        spaceList = this.state.pastSpaces;
+        isLive = false;
+      } else {
+        spaceList = this.state.spaces;
+        isLive = true;
+      }
+      spaceList = spaceList.filter(function (space) {
+        return space.title && space.title.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_description && space.creator_description.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_name && space.creator_name.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_username && space.creator_username.toLowerCase().includes(_this4.state.searchKeyword);
+      });
+      spaceList = spaceList.slice(0, this.state.pageSize);
+      return React.createElement(
+        'div',
+        { className: 'row' },
+        spaceList.map(function (space) {
+          return _this4.renderSpaceCard(space, isLive);
+        })
       );
     }
   }, {
@@ -286,6 +385,21 @@ var Main = function (_React$Component) {
       );
     }
   }, {
+    key: 'searchSpace',
+    value: function searchSpace(event) {
+      var searchKeyword = event.target.value;
+      mixpanel.track("Search space", {
+        keyword: searchKeyword
+      });
+      this.setState({ searchKeyword: searchKeyword.toLowerCase() });
+    }
+  }, {
+    key: 'clickTab',
+    value: function clickTab(tab) {
+      mixpanel.track("Click " + tab + " tab");
+      this.setState({ tab: tab });
+    }
+  }, {
     key: 'goToSpace',
     value: function goToSpace(spaceId) {
       mixpanel.track("Click space", {
@@ -317,6 +431,15 @@ var Main = function (_React$Component) {
 
   return Main;
 }(React.Component);
+
+var Style = {
+  tabButtonSelected: {
+    color: 'white', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #1D9BF0', backgroundColor: '#1D9BF0'
+  },
+  tabButton: {
+    color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #ced4da', backgroundColor: 'white'
+  }
+};
 
 var domContainer = document.querySelector('#react_container');
 ReactDOM.render(React.createElement(Main, null), domContainer);
