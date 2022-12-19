@@ -22,15 +22,6 @@ class Main extends React.Component {
         this.setState({spaces: data});
         console.log(data);
       });
-    fetch('https://web3twitterspace-default-rtdb.firebaseio.com/past.json')
-      .then(response => response.json())
-      .then(data => {
-        data = Object.values(data);
-        data = data
-          .filter((a) => a.participant_count >= 10)
-          .sort((a, b) => b.participant_count - a.participant_count);
-        this.setState({pastSpaces: data});
-      });
   }
 
   render() {
@@ -74,7 +65,7 @@ class Main extends React.Component {
                 <button className="btn" id="nav-past-tab" data-bs-toggle="tab" data-bs-target="#nav-past" type="button" role="tab" aria-controls="nav-past" aria-selected="false" 
                     style={this.state.tab === 'past' ? Style.tabButtonSelected : Style.tabButton}
                     onClick={() => this.clickTab("past")}>
-                    {'Past (' + this.state.pastSpaces.length + ')'} 
+                    {'Past (6000+)'} 
                 </button>
               </div>
               <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
@@ -87,7 +78,7 @@ class Main extends React.Component {
               <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
                 <button className="btn col-4" id="nav-upcoming-tab" 
                   style={this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton}  
-                  onClick={() => this.showToast()}>
+                  onClick={() => this.clickTab("upcoming")}>
                   Upcoming
                 </button>
               </div>
@@ -127,6 +118,14 @@ class Main extends React.Component {
       spaceList = this.state.spaces;
       isLive = true;
     }
+    if (spaceList.length == 0) {
+      return (
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      )
+    }
+    // search filter
     spaceList = spaceList.filter((space) => {
       return (
         (space.title && space.title.toLowerCase().includes(this.state.searchKeyword)) ||
@@ -213,7 +212,16 @@ class Main extends React.Component {
 
   clickTab(tab) {
     mixpanel.track("Click " + tab + " tab");
-    this.setState({tab: tab});
+    if (tab === "past") {
+      if (this.state.pastSpaces.length == 0) {
+        this.fetchPastSpaces();
+      }
+      this.setState({tab: tab});
+    } else if (tab === "live") {
+      this.setState({tab: tab});
+    } else {
+      this.showToast();
+    }
   }
 
   goToSpace(spaceId) {
@@ -237,6 +245,18 @@ class Main extends React.Component {
     if (userScrollHeight >= windowBottomHeight) {
       this.setState((prevState, props) => ({pageSize: prevState.pageSize + 50}));
     }
+  }
+
+  fetchPastSpaces() {
+    fetch('https://web3twitterspace-default-rtdb.firebaseio.com/past.json')
+    .then(response => response.json())
+    .then(data => {
+      data = Object.values(data);
+      data = data
+        .filter((a) => a.participant_count > 0)
+        .sort((a, b) => b.participant_count - a.participant_count);
+      this.setState({pastSpaces: data});
+    });
   }
 }
 

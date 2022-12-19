@@ -44,17 +44,6 @@ var Main = function (_React$Component) {
         _this2.setState({ spaces: data });
         console.log(data);
       });
-      fetch('https://web3twitterspace-default-rtdb.firebaseio.com/past.json').then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        data = Object.values(data);
-        data = data.filter(function (a) {
-          return a.participant_count >= 10;
-        }).sort(function (a, b) {
-          return b.participant_count - a.participant_count;
-        });
-        _this2.setState({ pastSpaces: data });
-      });
     }
   }, {
     key: 'render',
@@ -138,7 +127,7 @@ var Main = function (_React$Component) {
                     onClick: function onClick() {
                       return _this3.clickTab("past");
                     } },
-                  'Past (' + this.state.pastSpaces.length + ')'
+                  'Past (6000+)'
                 )
               ),
               React.createElement(
@@ -162,7 +151,7 @@ var Main = function (_React$Component) {
                   { className: 'btn col-4', id: 'nav-upcoming-tab',
                     style: this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton,
                     onClick: function onClick() {
-                      return _this3.showToast();
+                      return _this3.clickTab("upcoming");
                     } },
                   'Upcoming'
                 )
@@ -238,6 +227,18 @@ var Main = function (_React$Component) {
         spaceList = this.state.spaces;
         isLive = true;
       }
+      if (spaceList.length == 0) {
+        return React.createElement(
+          'div',
+          { className: 'spinner-border', role: 'status' },
+          React.createElement(
+            'span',
+            { className: 'visually-hidden' },
+            'Loading...'
+          )
+        );
+      }
+      // search filter
       spaceList = spaceList.filter(function (space) {
         return space.title && space.title.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_description && space.creator_description.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_name && space.creator_name.toLowerCase().includes(_this4.state.searchKeyword) || space.creator_username && space.creator_username.toLowerCase().includes(_this4.state.searchKeyword);
       });
@@ -397,7 +398,16 @@ var Main = function (_React$Component) {
     key: 'clickTab',
     value: function clickTab(tab) {
       mixpanel.track("Click " + tab + " tab");
-      this.setState({ tab: tab });
+      if (tab === "past") {
+        if (this.state.pastSpaces.length == 0) {
+          this.fetchPastSpaces();
+        }
+        this.setState({ tab: tab });
+      } else if (tab === "live") {
+        this.setState({ tab: tab });
+      } else {
+        this.showToast();
+      }
     }
   }, {
     key: 'goToSpace',
@@ -426,6 +436,23 @@ var Main = function (_React$Component) {
           return { pageSize: prevState.pageSize + 50 };
         });
       }
+    }
+  }, {
+    key: 'fetchPastSpaces',
+    value: function fetchPastSpaces() {
+      var _this6 = this;
+
+      fetch('https://web3twitterspace-default-rtdb.firebaseio.com/past.json').then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        data = Object.values(data);
+        data = data.filter(function (a) {
+          return a.participant_count > 0;
+        }).sort(function (a, b) {
+          return b.participant_count - a.participant_count;
+        });
+        _this6.setState({ pastSpaces: data });
+      });
     }
   }]);
 
