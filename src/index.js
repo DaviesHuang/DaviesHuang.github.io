@@ -283,7 +283,8 @@ const Style = {
 
 const SPONSER_LIST = [
   "Blue2black",
-  "jpegcoffee"
+  "jpegcoffee",
+  "therealmrcrypto"
 ]
 
 let domContainer = document.querySelector('#react_container');

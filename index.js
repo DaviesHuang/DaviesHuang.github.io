@@ -481,7 +481,7 @@ var Style = {
   }
 };
 
-var SPONSER_LIST = ["Blue2black", "jpegcoffee"];
+var SPONSER_LIST = ["Blue2black", "jpegcoffee", "therealmrcrypto"];
 
 var domContainer = document.querySelector('#react_container');
 ReactDOM.render(React.createElement(Main, null), domContainer);
