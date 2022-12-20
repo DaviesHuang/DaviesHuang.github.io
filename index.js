@@ -225,6 +225,13 @@ var Main = function (_React$Component) {
         isLive = false;
       } else {
         spaceList = this.state.spaces;
+        var sponsoredSpaceList = spaceList.filter(function (space) {
+          return SPONSER_LIST.includes(space.creator_username);
+        });
+        var otherSpaceList = spaceList.filter(function (space) {
+          return !SPONSER_LIST.includes(space.creator_username);
+        });
+        spaceList = sponsoredSpaceList.concat(otherSpaceList);
         isLive = true;
       }
       if (spaceList.length == 0) {
@@ -247,18 +254,24 @@ var Main = function (_React$Component) {
         'div',
         { className: 'row' },
         spaceList.map(function (space) {
-          return _this4.renderSpaceCard(space, isLive);
+          return _this4.renderSpaceCard(space, isLive, SPONSER_LIST.includes(space.creator_username));
         })
       );
     }
   }, {
     key: 'renderSpaceCard',
-    value: function renderSpaceCard(space, isLive) {
+    value: function renderSpaceCard(space, isLive, isSponsered) {
       var _this5 = this;
 
       return React.createElement(
         'div',
-        { key: space.id, className: 'card text-start', style: { width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5 } },
+        { key: space.id, className: 'card text-start position-relative',
+          style: { width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5, borderColor: isSponsered ? '#FCBD34' : 'rgb(0 0 0 / 18%)' } },
+        isSponsered && React.createElement(
+          'div',
+          { className: 'position-absolute top-0 end-0', style: { marginTop: 20, transform: 'rotate(45deg)', color: '#FCBD34' } },
+          'Promoted'
+        ),
         React.createElement(
           'div',
           { className: 'row', style: { paddingLeft: 11, paddingRight: 11 } },
@@ -467,6 +480,8 @@ var Style = {
     color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #ced4da', backgroundColor: 'white'
   }
 };
+
+var SPONSER_LIST = ["Blue2black"];
 
 var domContainer = document.querySelector('#react_container');
 ReactDOM.render(React.createElement(Main, null), domContainer);

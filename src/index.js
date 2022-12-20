@@ -116,6 +116,9 @@ class Main extends React.Component {
       isLive = false;
     } else {
       spaceList = this.state.spaces;
+      const sponsoredSpaceList = spaceList.filter((space) => SPONSER_LIST.includes(space.creator_username));
+      const otherSpaceList = spaceList.filter((space) => !SPONSER_LIST.includes(space.creator_username));
+      spaceList = sponsoredSpaceList.concat(otherSpaceList);
       isLive = true;
     }
     if (spaceList.length == 0) {
@@ -136,13 +139,22 @@ class Main extends React.Component {
     });
     spaceList = spaceList.slice(0, this.state.pageSize);
     return (
-      <div className="row">{spaceList.map((space) => this.renderSpaceCard(space, isLive))}</div>
+      <div className="row">
+        {spaceList.map((space) => this.renderSpaceCard(space, isLive, SPONSER_LIST.includes(space.creator_username)))}
+      </div>
     )
   }
 
-  renderSpaceCard(space, isLive) {
+  renderSpaceCard(space, isLive, isSponsered) {
     return (
-      <div key={space.id} className="card text-start" style={{width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5}}>
+      <div key={space.id} className="card text-start position-relative" 
+        style={{width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5, borderColor: isSponsered ? '#FCBD34' : 'rgb(0 0 0 / 18%)'}}>
+        { 
+          isSponsered && 
+            <div className="position-absolute top-0 end-0" style={{marginTop: 20, transform: 'rotate(45deg)', color: '#FCBD34'}}>
+              Promoted
+            </div>
+        }
         <div className="row" style={{paddingLeft: 11, paddingRight: 11}}>
           <div className="col col-auto" style={{padding: 0, marginRight: 4}}>
             <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
@@ -268,6 +280,10 @@ const Style = {
     color: '#1DA1F2', fontSize: 'calc(14px + 0.2vw)', width: 'fit-content', padding: 5, border: '1px solid #ced4da', backgroundColor: 'white'
   }
 }
+
+const SPONSER_LIST = [
+  "Blue2black",
+]
 
 let domContainer = document.querySelector('#react_container');
 ReactDOM.render(<Main />, domContainer);
