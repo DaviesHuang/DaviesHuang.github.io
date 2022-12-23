@@ -19,6 +19,7 @@ var Main = function (_React$Component) {
     _this.state = {
       spaces: [],
       pastSpaces: [],
+      upcomingSpaces: [],
       tab: 'live',
       pageSize: 50,
       searchKeyword: ""
@@ -82,7 +83,7 @@ var Main = function (_React$Component) {
           React.createElement(
             'div',
             { className: 'tab-pane fade', id: 'nav-upcoming', role: 'tabpanel', 'aria-labelledby': 'nav-upcoming-tab', tabIndex: '0' },
-            '...'
+            this.renderSpaceList()
           )
         ),
         this.renderFooter(),
@@ -148,12 +149,12 @@ var Main = function (_React$Component) {
                 { className: 'col-auto', style: { padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5 } },
                 React.createElement(
                   'button',
-                  { className: 'btn col-4', id: 'nav-upcoming-tab',
+                  { className: 'btn col-4', id: 'nav-upcoming-tab', 'data-bs-toggle': 'tab', 'data-bs-target': '#nav-upcoming', type: 'button', role: 'tab', 'aria-controls': 'nav-upcoming', 'aria-selected': 'true',
                     style: this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton,
                     onClick: function onClick() {
                       return _this3.clickTab("upcoming");
                     } },
-                  'Upcoming'
+                  'Upcoming (500+)'
                 )
               )
             )
@@ -219,11 +220,9 @@ var Main = function (_React$Component) {
       var _this4 = this;
 
       var spaceList = [];
-      var isLive = false;
       if (this.state.tab === 'past') {
         spaceList = this.state.pastSpaces;
-        isLive = false;
-      } else {
+      } else if (this.state.tab === 'live') {
         spaceList = this.state.spaces;
         var sponsoredSpaceList = spaceList.filter(function (space) {
           return SPONSER_LIST.includes(space.creator_username);
@@ -232,7 +231,15 @@ var Main = function (_React$Component) {
           return !SPONSER_LIST.includes(space.creator_username);
         });
         spaceList = sponsoredSpaceList.concat(otherSpaceList);
-        isLive = true;
+      } else if (this.state.tab === "upcoming") {
+        spaceList = this.state.upcomingSpaces;
+        var _sponsoredSpaceList = spaceList.filter(function (space) {
+          return SPONSER_LIST.includes(space.creator_username);
+        });
+        var _otherSpaceList = spaceList.filter(function (space) {
+          return !SPONSER_LIST.includes(space.creator_username);
+        });
+        spaceList = _sponsoredSpaceList.concat(_otherSpaceList);
       }
       if (spaceList.length == 0) {
         return React.createElement(
@@ -254,13 +261,13 @@ var Main = function (_React$Component) {
         'div',
         { className: 'row' },
         spaceList.map(function (space) {
-          return _this4.renderSpaceCard(space, isLive, SPONSER_LIST.includes(space.creator_username));
+          return _this4.renderSpaceCard(space, SPONSER_LIST.includes(space.creator_username));
         })
       );
     }
   }, {
     key: 'renderSpaceCard',
-    value: function renderSpaceCard(space, isLive, isSponsered) {
+    value: function renderSpaceCard(space, isSponsered) {
       var _this5 = this;
 
       return React.createElement(
@@ -323,7 +330,12 @@ var Main = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'row' },
-          React.createElement(
+          this.state.tab === 'upcoming' ? React.createElement(
+            'p',
+            { className: 'card-text', style: { color: 'white', fontSize: 13 } },
+            'Starts: ',
+            this.renderSpaceStartDate(space.scheduled_start)
+          ) : React.createElement(
             'p',
             { className: 'card-text', style: { color: 'white', fontSize: 13 } },
             space.participant_count,
@@ -343,11 +355,26 @@ var Main = function (_React$Component) {
             React.createElement(
               'span',
               { style: { fontSize: 14, fontWeight: 700 } },
-              isLive ? 'Listen live' : 'Go to Space'
+              this.state.tab === 'live' ? 'Listen live' : 'Go to Space'
             )
           )
         )
       );
+    }
+  }, {
+    key: 'renderSpaceStartDate',
+    value: function renderSpaceStartDate(startDate) {
+      var spaceDate = new Date(startDate);
+      return spaceDate.toLocaleString();
+      // const now = new Date();
+      // if (spaceDate.getDate() == now.getDate()) {
+      //   const diffInSecs = spaceDate.getSeconds() - now.getSeconds;
+      //   const diffInHours = Math.floor(diffInSecs / 3600);
+      //   const diffInMins = Math.floor((diffInSecs - diffInHours * 3600) / 60);
+      //   return `${diffInHours} h ${diffInMins} min`;
+      // } else {
+      //   return spaceDate.toLocaleDateString();
+      // }
     }
   }, {
     key: 'renderFooter',
@@ -418,8 +445,11 @@ var Main = function (_React$Component) {
         this.setState({ tab: tab });
       } else if (tab === "live") {
         this.setState({ tab: tab });
-      } else {
-        this.showToast();
+      } else if (tab === "upcoming") {
+        if (this.state.upcomingSpaces.length == 0) {
+          this.fetchUpcomingSpaces();
+        }
+        this.setState({ tab: tab });
       }
     }
   }, {
@@ -465,6 +495,21 @@ var Main = function (_React$Component) {
           return b.participant_count - a.participant_count;
         });
         _this6.setState({ pastSpaces: data });
+      });
+    }
+  }, {
+    key: 'fetchUpcomingSpaces',
+    value: function fetchUpcomingSpaces() {
+      var _this7 = this;
+
+      fetch('https://web3twitterspace-default-rtdb.firebaseio.com/upcoming.json').then(function (response) {
+        return response.json();
+      }).then(function (data) {
+        data = Object.values(data);
+        data = data.sort(function (a, b) {
+          return new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime();
+        });
+        _this7.setState({ upcomingSpaces: data });
       });
     }
   }]);

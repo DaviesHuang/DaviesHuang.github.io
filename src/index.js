@@ -6,6 +6,7 @@ class Main extends React.Component {
     this.state = { 
       spaces: [],
       pastSpaces:[],
+      upcomingSpaces: [],
       tab: 'live',
       pageSize: 50,
       searchKeyword: "",
@@ -41,7 +42,9 @@ class Main extends React.Component {
           <div className="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab" tabIndex="0">
             {this.renderSpaceList()}
           </div>
-          <div className="tab-pane fade" id="nav-upcoming" role="tabpanel" aria-labelledby="nav-upcoming-tab" tabIndex="0">...</div>
+          <div className="tab-pane fade" id="nav-upcoming" role="tabpanel" aria-labelledby="nav-upcoming-tab" tabIndex="0">
+            {this.renderSpaceList()}
+          </div>
         </div>
         {this.renderFooter()}
         {this.renderToast()}
@@ -76,10 +79,10 @@ class Main extends React.Component {
                 </button>
               </div>
               <div className="col-auto" style={{padding: 0, marginTop: 5, marginRight: 10, marginBottom: 5}}>
-                <button className="btn col-4" id="nav-upcoming-tab" 
+                <button className="btn col-4" id="nav-upcoming-tab" data-bs-toggle="tab" data-bs-target="#nav-upcoming" type="button" role="tab" aria-controls="nav-upcoming" aria-selected="true" 
                   style={this.state.tab === 'upcoming' ? Style.tabButtonSelected : Style.tabButton}  
                   onClick={() => this.clickTab("upcoming")}>
-                  Upcoming
+                  Upcoming (500+)
                 </button>
               </div>
             </div>
@@ -110,16 +113,18 @@ class Main extends React.Component {
 
   renderSpaceList() {
     var spaceList = [];
-    var isLive = false;
     if (this.state.tab === 'past') {
       spaceList = this.state.pastSpaces;
-      isLive = false;
-    } else {
+    } else if (this.state.tab === 'live') {
       spaceList = this.state.spaces;
       const sponsoredSpaceList = spaceList.filter((space) => SPONSER_LIST.includes(space.creator_username));
       const otherSpaceList = spaceList.filter((space) => !SPONSER_LIST.includes(space.creator_username));
       spaceList = sponsoredSpaceList.concat(otherSpaceList);
-      isLive = true;
+    } else if (this.state.tab === "upcoming") {
+      spaceList = this.state.upcomingSpaces;
+      const sponsoredSpaceList = spaceList.filter((space) => SPONSER_LIST.includes(space.creator_username));
+      const otherSpaceList = spaceList.filter((space) => !SPONSER_LIST.includes(space.creator_username));
+      spaceList = sponsoredSpaceList.concat(otherSpaceList);
     }
     if (spaceList.length == 0) {
       return (
@@ -140,12 +145,12 @@ class Main extends React.Component {
     spaceList = spaceList.slice(0, this.state.pageSize);
     return (
       <div className="row">
-        {spaceList.map((space) => this.renderSpaceCard(space, isLive, SPONSER_LIST.includes(space.creator_username)))}
+        {spaceList.map((space) => this.renderSpaceCard(space, SPONSER_LIST.includes(space.creator_username)))}
       </div>
     )
   }
 
-  renderSpaceCard(space, isLive, isSponsered) {
+  renderSpaceCard(space, isSponsered) {
     return (
       <div key={space.id} className="card text-start position-relative" 
         style={{width: 568, backgroundColor: '#1DA1F2', borderRadius: 12, padding: 11, marginBottom: 5, borderColor: isSponsered ? '#FCBD34' : 'rgb(0 0 0 / 18%)'}}>
@@ -176,17 +181,35 @@ class Main extends React.Component {
           <span style={{fontSize: 19, fontWeight: 800, color: 'white'}}>{space.title}</span>
         </div>
         <div className="row">
-          <p className="card-text" style={{color: 'white', fontSize: 13}}>{space.participant_count} in this space</p>  
+          { this.state.tab === 'upcoming' ?
+              <p className="card-text" style={{color: 'white', fontSize: 13}}>Starts: {this.renderSpaceStartDate(space.scheduled_start)}</p> :
+              <p className="card-text" style={{color: 'white', fontSize: 13}}>{space.participant_count} in this space</p> 
+          }
         </div>
         <div className="row" style={{paddingLeft: 12, paddingRight: 12}}>
           <div 
             style={{height: 32, marginTop: 15, backgroundColor: 'rgb(239, 243, 244)', minWidth: 34, borderRadius: '9999px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer'}}
             onClick={() => this.goToSpace(space.id)}> 
-           <span style={{fontSize: 14, fontWeight: 700}}>{isLive ? 'Listen live' : 'Go to Space'}</span>
+           <span style={{fontSize: 14, fontWeight: 700}}>{this.state.tab === 'live' ? 'Listen live' : 'Go to Space'}</span>
           </div>
         </div>
       </div>
     )
+  }
+
+  renderSpaceStartDate(startDate) {
+    const spaceDate = new Date(startDate);
+    return spaceDate.toLocaleString();
+    // const now = new Date();
+    // if (spaceDate.getDate() == now.getDate()) {
+    //   const diffInSecs = spaceDate.getSeconds() - now.getSeconds;
+    //   const diffInHours = Math.floor(diffInSecs / 3600);
+    //   const diffInMins = Math.floor((diffInSecs - diffInHours * 3600) / 60);
+    //   return `${diffInHours} h ${diffInMins} min`;
+    // } else {
+    //   return spaceDate.toLocaleDateString();
+    // }
+    
   }
 
   renderFooter() {
@@ -231,8 +254,11 @@ class Main extends React.Component {
       this.setState({tab: tab});
     } else if (tab === "live") {
       this.setState({tab: tab});
-    } else {
-      this.showToast();
+    } else if (tab === "upcoming") {
+      if (this.state.upcomingSpaces.length == 0) {
+        this.fetchUpcomingSpaces();
+      }
+      this.setState({tab: tab});
     }
   }
 
@@ -268,6 +294,17 @@ class Main extends React.Component {
         .filter((a) => a.participant_count > 0)
         .sort((a, b) => b.participant_count - a.participant_count);
       this.setState({pastSpaces: data});
+    });
+  }
+
+  fetchUpcomingSpaces() {
+    fetch('https://web3twitterspace-default-rtdb.firebaseio.com/upcoming.json')
+    .then(response => response.json())
+    .then(data => {
+      data = Object.values(data);
+      data = data
+        .sort((a, b) => new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime());
+      this.setState({upcomingSpaces: data});
     });
   }
 }
