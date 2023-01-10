@@ -333,7 +333,7 @@ var Main = function (_React$Component) {
           this.state.tab === 'upcoming' ? React.createElement(
             'p',
             { className: 'card-text', style: { color: 'white', fontSize: 13 } },
-            'Starts: ',
+            'Scheduled to start: ',
             this.renderSpaceStartDate(space.scheduled_start)
           ) : React.createElement(
             'p',
@@ -365,16 +365,27 @@ var Main = function (_React$Component) {
     key: 'renderSpaceStartDate',
     value: function renderSpaceStartDate(startDate) {
       var spaceDate = new Date(startDate);
-      return spaceDate.toLocaleString();
-      // const now = new Date();
-      // if (spaceDate.getDate() == now.getDate()) {
-      //   const diffInSecs = spaceDate.getSeconds() - now.getSeconds;
-      //   const diffInHours = Math.floor(diffInSecs / 3600);
-      //   const diffInMins = Math.floor((diffInSecs - diffInHours * 3600) / 60);
-      //   return `${diffInHours} h ${diffInMins} min`;
-      // } else {
-      //   return spaceDate.toLocaleDateString();
-      // }
+      var now = new Date();
+      var THIRTY_MIN = 1800000;
+      if (spaceDate.getTime() >= now.getTime() + THIRTY_MIN) {
+        return spaceDate.toLocaleString();
+      } else {
+        if (spaceDate.getTime() >= now.getTime()) {
+          var diffInMin = parseInt((spaceDate.getTime() - now.getTime()) / 60000);
+          if (diffInMin == 0) {
+            return "now";
+          } else {
+            return 'in ' + diffInMin + ' mins';
+          }
+        } else {
+          var _diffInMin = parseInt((now.getTime() - spaceDate.getTime()) / 60000);
+          if (_diffInMin == 0) {
+            return "now";
+          } else {
+            return _diffInMin + ' mins ago';
+          }
+        }
+      }
     }
   }, {
     key: 'renderFooter',
@@ -505,11 +516,21 @@ var Main = function (_React$Component) {
       fetch('https://web3twitterspace-default-rtdb.firebaseio.com/upcoming.json').then(function (response) {
         return response.json();
       }).then(function (data) {
-        data = Object.values(data);
-        data = data.sort(function (a, b) {
+        var spaces = Object.values(data);
+        var now = new Date();
+        var THIRTY_MIN = 1800000;
+        var spaceWithin30Min = spaces.filter(function (space) {
+          return new Date(space.scheduled_start).getTime() <= now.getTime() + THIRTY_MIN;
+        }).sort(function (a, b) {
           return new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime();
         });
-        _this7.setState({ upcomingSpaces: data });
+        var otherSpaces = spaces.filter(function (space) {
+          return new Date(space.scheduled_start).getTime() > now.getTime() + THIRTY_MIN;
+        }).sort(function (a, b) {
+          return new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime();
+        });
+        spaces = spaceWithin30Min.concat(otherSpaces);
+        _this7.setState({ upcomingSpaces: spaces });
       });
     }
   }]);

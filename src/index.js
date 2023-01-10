@@ -182,7 +182,7 @@ class Main extends React.Component {
         </div>
         <div className="row">
           { this.state.tab === 'upcoming' ?
-              <p className="card-text" style={{color: 'white', fontSize: 13}}>Starts: {this.renderSpaceStartDate(space.scheduled_start)}</p> :
+              <p className="card-text" style={{color: 'white', fontSize: 13}}>Scheduled to start: {this.renderSpaceStartDate(space.scheduled_start)}</p> :
               <p className="card-text" style={{color: 'white', fontSize: 13}}>{space.participant_count} in this space</p> 
           }
         </div>
@@ -199,17 +199,28 @@ class Main extends React.Component {
 
   renderSpaceStartDate(startDate) {
     const spaceDate = new Date(startDate);
-    return spaceDate.toLocaleString();
-    // const now = new Date();
-    // if (spaceDate.getDate() == now.getDate()) {
-    //   const diffInSecs = spaceDate.getSeconds() - now.getSeconds;
-    //   const diffInHours = Math.floor(diffInSecs / 3600);
-    //   const diffInMins = Math.floor((diffInSecs - diffInHours * 3600) / 60);
-    //   return `${diffInHours} h ${diffInMins} min`;
-    // } else {
-    //   return spaceDate.toLocaleDateString();
-    // }
-    
+    const now = new Date();
+    const THIRTY_MIN = 1800000;
+    if (spaceDate.getTime() >= now.getTime() + THIRTY_MIN) {
+      return spaceDate.toLocaleString();
+    } else {
+      if (spaceDate.getTime() >= now.getTime()) {
+        const diffInMin = parseInt((spaceDate.getTime() - now.getTime()) / 60000);
+        if (diffInMin == 0) {
+          return "now";
+        } else {
+          return `in ${diffInMin} mins`;
+        }
+      } else {
+        const diffInMin = parseInt((now.getTime() - spaceDate.getTime()) / 60000);
+        if (diffInMin == 0) {
+          return "now";
+        } else {
+          return `${diffInMin} mins ago`;
+        }
+      }
+    }
+
   }
 
   renderFooter() {
@@ -301,10 +312,17 @@ class Main extends React.Component {
     fetch('https://web3twitterspace-default-rtdb.firebaseio.com/upcoming.json')
     .then(response => response.json())
     .then(data => {
-      data = Object.values(data);
-      data = data
+      var spaces = Object.values(data);
+      const now = new Date();
+      const THIRTY_MIN = 1800000;
+      const spaceWithin30Min = spaces
+        .filter((space) => new Date(space.scheduled_start).getTime() <= now.getTime() + THIRTY_MIN)
         .sort((a, b) => new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime());
-      this.setState({upcomingSpaces: data});
+      const otherSpaces = spaces
+        .filter((space) => new Date(space.scheduled_start).getTime() > now.getTime() + THIRTY_MIN)
+        .sort((a, b) => new Date(a.scheduled_start).getTime() - new Date(b.scheduled_start).getTime());
+      spaces = spaceWithin30Min.concat(otherSpaces);
+      this.setState({upcomingSpaces: spaces});
     });
   }
 }
